@@ -61,6 +61,9 @@ print(("Hello123").isalnum())
 # str.isspace: mengecek apakah str itu ruang kosong
 print((' ').isspace())
 
+# str.count untuk menghitung jumlah huruf
+print("thirty days of python".count("o"))
+
 # ==================================================================
 # str.strip(): Menghapus space yang ada
 print((" HEllo ").strip())

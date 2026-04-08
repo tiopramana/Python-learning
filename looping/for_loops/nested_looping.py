@@ -3,10 +3,17 @@
 
 
 
-pilihan = int(input("Masukkan pilihan: "))
-bentuk = input("Masukkan bentuk: ")
+# pilihan = int(input("Masukkan pilihan: "))
+# bentuk = input("Masukkan bentuk: ")
 
-for i in range (1, pilihan + 1):
-    gap = " " * (pilihan - i)
-    star = bentuk * (2 * i - 1)
-    print(gap + star)
+# for i in range (1, pilihan + 1):
+#     gap = " " * (pilihan - i)
+#     star = bentuk * (2 * i - 1)
+#     print(gap + star)
+
+buah = ["apel", "mangga", "jeruk"]
+
+for i in buah:
+    if i:
+        print("Pastikan ada buah", i)
+    print("Ada \n")
