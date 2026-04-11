@@ -17,3 +17,12 @@ for i in buah:
     if i:
         print("Pastikan ada buah", i)
     print("Ada \n")
+
+row = int(input("Masukan Baris: "))
+col = int(input("Masukan Kolom: "))
+symbol = input("Masukan Symbol: ")
+
+for x in range(row):
+    for y in range(col):
+        print(symbol, end='')
+    print()

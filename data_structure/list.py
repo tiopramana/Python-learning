@@ -54,12 +54,15 @@ print(my_list)  # Output: [1, "Changed", 3, "Python", 4.5, 6]
 #print(dir(buah))
 # print(help(buah))
 
+print(dir(buah)) # Untuk melihat command apa saja yang bisa digunakan untuk list
 
 print(len(buah))
 
 print( "apel" in buah)
 
 print(buah.append("lolok"))
+
+print(buah.insert(2, "Cacing"))
 
 print(buah)
 
