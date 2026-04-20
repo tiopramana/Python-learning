@@ -5,7 +5,10 @@
 # print(help("modules"))
 
 import math
+from math import e
 
 a = math.pi
 
 print(a)
+
+print(e)
