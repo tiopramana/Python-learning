@@ -35,7 +35,6 @@ def get_payout(row, bet):
             return bet
     return 0
 
-    
 def main():
     print("*********************")
     print("Welcome to judol python")
