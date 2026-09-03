@@ -32,3 +32,26 @@ data1.alasanTidakTelat()
 print()
 data2.telat()
 data2.alasanTelat()
+
+
+class Anjing:
+
+    def __init__(self, name, jenis):
+        self.name = name
+        self.jenis = jenis
+
+    def rasAnjing(self):
+        print(f"Ras nya adalah {self.jenis}")
+
+class TipeAnjing(Anjing):
+
+    def tipeRas(self):
+        print("Baik")
+
+    def sifat(self):
+        print("Malas")
+
+
+data = Anjing("Tora", "Kintamani")
+
+data.rasAnjing()
