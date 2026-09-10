@@ -142,19 +142,12 @@ class HandDetector():
             x = int(landmark.x * width)
             y = int(landmark.y * height)
 
-            land_mark_list.append(
-                (
-                land_mark_id,
-                x,
-                y,
-                landmark.z
-                )
-            )
+            land_mark_list.append((x,y))
 
         return land_mark_list
 
     def close(self):
-        self.detector.close   
+        self.detector.close() 
 
 
 def fingerUps(points):
@@ -174,7 +167,7 @@ def classifyGesture(points):
         return "draw"
     if index and middle and not ring and not pinky:
         return "erase"
-    if index and middle and not ring and pinky:
+    if index and middle and ring and not pinky:
         return "spawn"
 
 
@@ -237,26 +230,90 @@ def main():
                 if smoothed_point is None:
                     smoothed_point = fingerTip
                 else:
-                    sx = int(SMOOTHING * smoothed_point[0] * (1 - SMOOTHING) * fingerTip[0])
+                    sx = int(SMOOTHING * smoothed_point[0] + (1 - SMOOTHING) * fingerTip[0])
                     sy = int(SMOOTHING * smoothed_point[1] + (1 - SMOOTHING) * fingerTip[1])
                     smoothed_point = (sx, sy)
 
+            now = time.time()
+
             if gesture == "draw" and smoothed_point:
+                pt = tuple(int(v) for v in smoothed_point)
                 if prev_point is not None:
-                    cv2.line(canvas, prev_point, smoothed_point, DRAW_COLOR, DRAW_THICKNESS)
-                prev_point =  smoothed_point
+                    p1 = tuple(int(v) for v in prev_point)
+                    cv2.line(canvas, p1, pt, DRAW_COLOR, DRAW_THICKNESS)
+                prev_point = pt
             elif gesture == "erase" and smoothed_point:
-                cv2.circle(canvas, smoothed_point, ERASE_THICKNESS, (255, 255, 255), cv2.FILLED)
+                center = tuple(int(v) for v in smoothed_point)
+                cv2.circle(canvas, center, ERASE_THICKNESS, (255, 255, 255), cv2.FILLED)
                 prev_point = None
             elif gesture == "spawn":
                 if prev_gesture != "spawn" and now > spawn_debounce_until:
+                    white_board_visual = not white_board_visual
+                    spawn_debounce_until = now + 0.6
+                prev_point = None
+            else:
+                prev_point = None
+
+            prev_gesture = gesture
 
 
-            now = time.time()
+            detector.draw_landmarks(frame)
 
-    detector.close()
-    cap.release()
-    cv2.destroyAllWindows()
+            if white_board_visual:
+                display = canvas.copy()
+
+                preview_h, preview_w = width // 4, height // 4
+                preview = cv2.resize(frame, (preview_w, preview_h))
+                display[10:10 + preview_h, width - 10 - preview_w:width - 10] = preview
+                cv2.rectangle(
+                    display,
+                    (width - 10 - preview_w, 10),
+                    (width - 10, 10 + preview_h),
+                    (0,0,0), 2,
+                )
+
+            else:
+                display = frame
+
+            fps = 1 / (now - previous_time) if now != previous_time else 0
+            previous_time = now
+
+            status_text = f"Gesture: {gesture or 'none'}  |  Whiteboard: {'ON' if white_board_visual else 'OFF'}"
+
+            cv2.putText(display, status_text, (20, 30), cv2.FONT_HERSHEY_SIMPLEX,
+                    0.7, (0, 0, 0) if white_board_visual else (0, 255, 0), 2)
+            cv2.putText(display, f"FPS: {int(fps)}", (20, 60), cv2.FONT_HERSHEY_SIMPLEX,
+                    0.7, (0, 0, 0) if white_board_visual else (0, 255, 0), 2)
+
+            if smoothed_point:
+                cursor = tuple(int(v) for v in smoothed_point)
+
+                if gesture == "draw":
+                    cv2.circle(display, cursor, DRAW_THICKNESS // 2 + 4, DRAW_COLOR, 2)
+                    cv2.circle(display, cursor, 2, DRAW_COLOR, cv2.FILLED)
+
+                elif gesture == "erase":
+                    cv2.circle(display, cursor, ERASE_THICKNESS, (0, 0, 0), 2)
+                    cv2.circle(display, cursor, 2, (0, 0, 0), cv2.FILLED)
+
+                else:
+                    # idle / spawn gesture / hand present but not writing
+                    cv2.circle(display, cursor, 8, (255, 180, 0), 2)
+                    cv2.circle(display, cursor, 2, (255, 180, 0), cv2.FILLED)
+
+            cv2.imshow("Status white board : ", display)
+
+            key = cv2.waitKey(1) & 0xFF
+            if key == ord("q"):
+                break
+            elif key == ord("c"):
+                canvas[:] = 255
+                prev_point = None
+
+
+        detector.close()
+        cap.release()
+        cv2.destroyAllWindows()
 
 if __name__ == "__main__":
     main()
